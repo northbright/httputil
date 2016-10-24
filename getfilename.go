@@ -1,7 +1,6 @@
 package httputil
 
 import (
-	"errors"
 	"fmt"
 	"mime"
 	"net/http"
@@ -19,14 +18,14 @@ func GetFileNameFromURL(targetURL string) (fileName string, err error) {
 	var parsedURL *url.URL
 
 	if targetURL == "" {
-		return "", errors.New("Empty target URL.")
+		return "", fmt.Errorf("Empty target URL.")
 	}
 
 	if parsedURL, err = url.Parse(targetURL); err != nil {
 		return "", err
 	}
 	if fileName = filepath.Base(parsedURL.Path); fileName == "." {
-		return "", errors.New(fmt.Sprintf("parsedURL.Path err: %v\n", parsedURL.Path))
+		return "", fmt.Errorf("parsedURL.Path err: %v\n", parsedURL.Path)
 	}
 
 	return fileName, nil
@@ -43,7 +42,7 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 	contentDisposition := resp.Header.Get("Content-Disposition")
 
 	if contentDisposition == "" {
-		return "", errors.New("Content-Disposition is empty.")
+		return "", fmt.Errorf("Content-Disposition is empty.")
 	}
 
 	_, params, err := mime.ParseMediaType(contentDisposition)
@@ -52,7 +51,7 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 	}
 
 	if fileName, ok = params["filename"]; !ok {
-		return "", errors.New("No filename param in Content-Disposition.")
+		return "", fmt.Errorf("No filename param in Content-Disposition.")
 	}
 
 	return fileName, nil
