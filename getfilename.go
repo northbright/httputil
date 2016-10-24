@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-// GetFileNameFromURL() gets the downloadable file name from target URL.
+// GetFileNameFromURL gets the downloadable file name from target URL.
 //
 //   Params:
 //     targetUrl: Target URL.
@@ -31,7 +31,7 @@ func GetFileNameFromURL(targetUrl string) (fileName string, err error) {
 	return fileName, nil
 }
 
-// GetFileNameFromResponse() detects downladable file name in the HTTP response.
+// GetFileNameFromResponse detects downladable file name in the HTTP response.
 //
 //   Params:
 //     resp: http.Response returned from http.Do(), Head(), Get()...
@@ -57,7 +57,7 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 	}
 }
 
-// GetFileName() detects / gets the downladable file name in the given target URL.
+// GetFileName detects / gets the downladable file name in the given target URL.
 //
 //   Params:
 //     targetUrl: Target URL.
