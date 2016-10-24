@@ -12,15 +12,15 @@ import (
 // GetFileNameFromURL gets the downloadable file name from target URL.
 //
 //   Params:
-//     targetUrl: Target URL.
+//     targetURL: Target URL.
 //   Return:
 //     fileName: File name in the URL.
-func GetFileNameFromURL(targetUrl string) (fileName string, err error) {
-	if targetUrl == "" {
+func GetFileNameFromURL(targetURL string) (fileName string, err error) {
+	if targetURL == "" {
 		return "", errors.New("Empty target URL.")
 	}
 
-	if parsedURL, err := url.Parse(targetUrl); err != nil {
+	if parsedURL, err := url.Parse(targetURL); err != nil {
 		return "", err
 	} else {
 		if fileName = filepath.Base(parsedURL.Path); fileName == "." {
@@ -60,13 +60,13 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 // GetFileName detects / gets the downladable file name in the given target URL.
 //
 //   Params:
-//     targetUrl: Target URL.
+//     targetURL: Target URL.
 //   Return:
 //     fileName: File name.
-func GetFileName(targetUrl string) (fileName string, err error) {
+func GetFileName(targetURL string) (fileName string, err error) {
 	var resp *http.Response
 
-	if resp, err = http.Head(targetUrl); err != nil {
+	if resp, err = http.Head(targetURL); err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -74,7 +74,7 @@ func GetFileName(targetUrl string) (fileName string, err error) {
 	// Step 1. Try to detect the downloadable file name from HTTP response.
 	if fileName, err = GetFileNameFromResponse(resp); err != nil {
 		// Step 2. Try to get the downloadable file name in the URL.
-		return GetFileNameFromURL(targetUrl)
+		return GetFileNameFromURL(targetURL)
 	}
 
 	return fileName, nil
