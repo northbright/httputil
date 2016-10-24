@@ -16,16 +16,17 @@ import (
 //   Return:
 //     fileName: File name in the URL.
 func GetFileNameFromURL(targetURL string) (fileName string, err error) {
+	var parsedURL *url.URL
+
 	if targetURL == "" {
 		return "", errors.New("Empty target URL.")
 	}
 
-	if parsedURL, err := url.Parse(targetURL); err != nil {
+	if parsedURL, err = url.Parse(targetURL); err != nil {
 		return "", err
-	} else {
-		if fileName = filepath.Base(parsedURL.Path); fileName == "." {
-			return "", errors.New(fmt.Sprintf("parsedURL.Path err: %v\n", parsedURL.Path))
-		}
+	}
+	if fileName = filepath.Base(parsedURL.Path); fileName == "." {
+		return "", errors.New(fmt.Sprintf("parsedURL.Path err: %v\n", parsedURL.Path))
 	}
 
 	return fileName, nil
@@ -43,18 +44,19 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 
 	if contentDisposition == "" {
 		return "", errors.New("Content-Disposition is empty.")
-	} else {
-		_, params, err := mime.ParseMediaType(contentDisposition)
-		if err != nil {
-			return "", err
-		}
-
-		if fileName, ok = params["filename"]; !ok {
-			return "", errors.New("No filename param in Content-Disposition.")
-		}
-
-		return fileName, nil
 	}
+
+	_, params, err := mime.ParseMediaType(contentDisposition)
+	if err != nil {
+		return "", err
+	}
+
+	if fileName, ok = params["filename"]; !ok {
+		return "", errors.New("No filename param in Content-Disposition.")
+	}
+
+	return fileName, nil
+
 }
 
 // GetFileName detects / gets the downladable file name in the given target URL.
