@@ -8,37 +8,27 @@ import (
 	"path/filepath"
 )
 
-// GetFileNameFromURL gets the downloadable file name from target URL.
-//
-//	Params:
-//	  targetURL: Target URL.
-//	Return:
-//	  fileName: File name in the URL.
-func GetFileNameFromURL(targetURL string) (fileName string, err error) {
-	var parsedURL *url.URL
-
+// GetFileNameFromURL returns the downloadable file name from target URL.
+func GetFileNameFromURL(targetURL string) (string, error) {
 	if targetURL == "" {
 		return "", fmt.Errorf("empty target URL")
 	}
 
-	if parsedURL, err = url.Parse(targetURL); err != nil {
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
 		return "", err
 	}
-	if fileName = filepath.Base(parsedURL.Path); fileName == "." {
+
+	fileName := filepath.Base(parsedURL.Path)
+	if fileName == "." {
 		return "", fmt.Errorf("parsedURL.Path err: %v", parsedURL.Path)
 	}
 
 	return fileName, nil
 }
 
-// GetFileNameFromResponse detects downladable file name in the HTTP response.
-//
-//	Params:
-//	  resp: http.Response returned from http.Do(), Head(), Get()...
-//	Return:
-//	  fileName: File name.
-func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
-	var ok bool
+// GetFileNameFromResponse returns downloadable file name in the HTTP response.
+func GetFileNameFromResponse(resp *http.Response) (string, error) {
 	contentDisposition := resp.Header.Get("Content-Disposition")
 
 	if contentDisposition == "" {
@@ -50,31 +40,30 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 		return "", err
 	}
 
-	if fileName, ok = params["filename"]; !ok {
+	fileName, ok := params["filename"]
+	if !ok {
 		return "", fmt.Errorf("no filename param in Content-Disposition")
 	}
 
 	return fileName, nil
-
 }
 
-// GetFileName detects / gets the downladable file name in the given target URL.
-//
-//	Params:
-//	  targetURL: Target URL.
-//	Return:
-//	  fileName: File name.
-func GetFileName(targetURL string) (fileName string, err error) {
-	var resp *http.Response
-
-	if resp, err = http.Head(targetURL); err != nil {
-		return "", err
+// GetFileName returns the downloadable file name.
+// It'll try to get the name in the HTTP response firstly.
+// If it fails, then it'll try to parse the URL to get the file name.
+func GetFileName(targetURL string) (string, error) {
+	// Try to do HTTP request(HEAD).
+	resp, err := http.Head(targetURL)
+	if err != nil {
+		// Try to get the file name in URL.
+		return GetFileNameFromURL(targetURL)
 	}
 	defer resp.Body.Close()
 
-	// Step 1. Try to detect the downloadable file name from HTTP response.
-	if fileName, err = GetFileNameFromResponse(resp); err != nil {
-		// Step 2. Try to get the downloadable file name in the URL.
+	// Try to get the file name in the response.
+	fileName, err := GetFileNameFromResponse(resp)
+	if err != nil {
+		// Try to get the file name in the URL.
 		return GetFileNameFromURL(targetURL)
 	}
 
