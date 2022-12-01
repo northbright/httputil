@@ -7,17 +7,17 @@ import (
 	"github.com/northbright/httputil"
 )
 
-func ExampleIsRangeSupported() {
+func ExampleContentLength() {
 	url := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	supported, err := httputil.IsRangeSupported(url)
+	l, supported, err := httputil.ContentLength(url)
 	if err != nil {
-		log.Printf("IsRangeSupported() error: %v", err)
+		log.Printf("ContentLength() error: %v", err)
 		return
 	}
 
-	fmt.Print(supported)
+	fmt.Printf("%v, %v", l, supported)
 
 	// Output:
-	// true
+	// 145565374, true
 }
