@@ -23,6 +23,7 @@ func ContentLength(url string) (int64, bool, error) {
 	if err != nil {
 		return 0, false, err
 	}
+	defer resp.Body.Close()
 
 	// Check if status code is 200 or 206.
 	if resp.StatusCode != 200 && resp.StatusCode != 206 {
