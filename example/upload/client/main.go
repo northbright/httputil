@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/northbright/httputil"
-	"github.com/northbright/pathhelper"
+	"github.com/northbright/pathelper"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 		}
 	}()
 
-	filePath, _ = pathhelper.GetAbsPath(filePath)
+	filePath, _ = pathelper.ExecDir(filePath)
 	if req, err = httputil.NewUploadFileRequest("POST", uri, filePath, "upload", nil); err != nil {
 		err = fmt.Errorf("NewUploadFileRequest() error: %v", err)
 		return

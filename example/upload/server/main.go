@@ -8,7 +8,7 @@ import (
 	"path"
 
 	"github.com/gin-gonic/gin"
-	"github.com/northbright/pathhelper"
+	"github.com/northbright/pathelper"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	serverRoot, _ = pathhelper.GetCurrentExecDir()
+	serverRoot, _ = pathelper.ExecDir("")
 }
 
 func uploadFile(c *gin.Context) {
