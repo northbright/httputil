@@ -10,22 +10,22 @@ import (
 
 // GetFileNameFromURL gets the downloadable file name from target URL.
 //
-//   Params:
-//     targetURL: Target URL.
-//   Return:
-//     fileName: File name in the URL.
+//	Params:
+//	  targetURL: Target URL.
+//	Return:
+//	  fileName: File name in the URL.
 func GetFileNameFromURL(targetURL string) (fileName string, err error) {
 	var parsedURL *url.URL
 
 	if targetURL == "" {
-		return "", fmt.Errorf("Empty target URL.")
+		return "", fmt.Errorf("empty target URL")
 	}
 
 	if parsedURL, err = url.Parse(targetURL); err != nil {
 		return "", err
 	}
 	if fileName = filepath.Base(parsedURL.Path); fileName == "." {
-		return "", fmt.Errorf("parsedURL.Path err: %v\n", parsedURL.Path)
+		return "", fmt.Errorf("parsedURL.Path err: %v", parsedURL.Path)
 	}
 
 	return fileName, nil
@@ -33,16 +33,16 @@ func GetFileNameFromURL(targetURL string) (fileName string, err error) {
 
 // GetFileNameFromResponse detects downladable file name in the HTTP response.
 //
-//   Params:
-//     resp: http.Response returned from http.Do(), Head(), Get()...
-//   Return:
-//     fileName: File name.
+//	Params:
+//	  resp: http.Response returned from http.Do(), Head(), Get()...
+//	Return:
+//	  fileName: File name.
 func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 	var ok bool
 	contentDisposition := resp.Header.Get("Content-Disposition")
 
 	if contentDisposition == "" {
-		return "", fmt.Errorf("Content-Disposition is empty.")
+		return "", fmt.Errorf("Content-Disposition is empty")
 	}
 
 	_, params, err := mime.ParseMediaType(contentDisposition)
@@ -51,7 +51,7 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 	}
 
 	if fileName, ok = params["filename"]; !ok {
-		return "", fmt.Errorf("No filename param in Content-Disposition.")
+		return "", fmt.Errorf("no filename param in Content-Disposition")
 	}
 
 	return fileName, nil
@@ -60,10 +60,10 @@ func GetFileNameFromResponse(resp *http.Response) (fileName string, err error) {
 
 // GetFileName detects / gets the downladable file name in the given target URL.
 //
-//   Params:
-//     targetURL: Target URL.
-//   Return:
-//     fileName: File name.
+//	Params:
+//	  targetURL: Target URL.
+//	Return:
+//	  fileName: File name.
 func GetFileName(targetURL string) (fileName string, err error) {
 	var resp *http.Response
 
