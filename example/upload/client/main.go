@@ -13,7 +13,7 @@ import (
 func main() {
 	var (
 		err      error
-		uri      = "http://localhost"
+		uri      = "http://localhost:8080"
 		filePath = "files/1.txt"
 		client   = http.Client{}
 		req      *http.Request
@@ -28,7 +28,12 @@ func main() {
 	}()
 
 	filePath, _ = pathelper.ExecDir(filePath)
-	if req, err = httputil.NewUploadFileRequest("POST", uri, filePath, "upload", nil); err != nil {
+	if req, err = httputil.NewUploadFileRequest(
+		"POST",
+		uri,
+		filePath,
+		"file_to_upload",
+		nil); err != nil {
 		err = fmt.Errorf("NewUploadFileRequest() error: %v", err)
 		return
 	}

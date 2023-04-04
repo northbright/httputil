@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path"
 
-	"github.com/gin-gonic/gin"
 	"github.com/northbright/pathelper"
 )
 
@@ -19,50 +18,44 @@ func init() {
 	serverRoot, _ = pathelper.ExecDir("")
 }
 
-func uploadFile(c *gin.Context) {
-	var err error
-
-	defer func() {
-		if err != nil {
-			log.Printf("%v", err)
-		}
-	}()
-
-	file, header, err := c.Request.FormFile("upload")
-	if err != nil {
-		err = fmt.Errorf("FormFile() error: %v", err)
+func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	file, header, err := r.FormFile("file_to_upload")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	defer file.Close()
 
 	uploadedDir := path.Join(serverRoot, "uploaded")
 	fileName := path.Join(uploadedDir, header.Filename)
 
 	out, err := os.Create(fileName)
 	if err != nil {
-		err = fmt.Errorf("os.Create() error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		err = fmt.Errorf("io.Copy() error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.Write([]byte("File is uploaded successfully."))
 }
 
 func main() {
-	var err error
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", uploadHandler)
 
-	defer func() {
-		if err != nil {
-			log.Printf("main() err: %v\n", err)
-		}
-	}()
-
-	r := gin.Default()
-
-	r.POST("/", uploadFile)
-
-	r.Run(":80")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatal(err)
+	}
 }
