@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path"
-
-	"github.com/northbright/pathelper"
+	"path/filepath"
 )
 
 var (
@@ -15,7 +14,7 @@ var (
 )
 
 func init() {
-	serverRoot, _ = pathelper.ExecDir("")
+	serverRoot, _ = os.Executable()
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +31,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	uploadedDir := path.Join(serverRoot, "uploaded")
+	uploadedDir := filepath.Join(serverRoot, "uploaded")
 	fileName := path.Join(uploadedDir, header.Filename)
 
 	out, err := os.Create(fileName)

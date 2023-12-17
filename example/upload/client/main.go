@@ -5,20 +5,21 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/northbright/httputil"
-	"github.com/northbright/pathelper"
 )
 
 func main() {
 	var (
-		err      error
-		uri      = "http://localhost:8080"
-		filePath = "files/1.txt"
-		client   = http.Client{}
-		req      *http.Request
-		resp     *http.Response
-		data     []byte
+		err        error
+		uri        = "http://localhost:8080"
+		uploadFile = "files/1.txt"
+		client     = http.Client{}
+		req        *http.Request
+		resp       *http.Response
+		data       []byte
 	)
 
 	defer func() {
@@ -27,11 +28,12 @@ func main() {
 		}
 	}()
 
-	filePath, _ = pathelper.ExecDir(filePath)
+	execDir, _ := os.Executable()
+	uploadFile = filepath.Join(execDir, uploadFile)
 	if req, err = httputil.NewUploadFileRequest(
 		"POST",
 		uri,
-		filePath,
+		uploadFile,
 		"file_to_upload",
 		nil); err != nil {
 		err = fmt.Errorf("NewUploadFileRequest() error: %v", err)
