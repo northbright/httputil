@@ -16,10 +16,10 @@ var (
 	ErrNot200or206 = errors.New("status code is not 200 or 206")
 )
 
-// ContentLength returns the length of content and if range is supported by the server on the URL.
-func ContentLength(url string) (int64, bool, error) {
+// Len returns the length of content and if range is supported by the server on the URL.
+func Len(uri string) (uint64, bool, error) {
 	// Do HTTP request with HEAD method(without body)
-	resp, err := http.Head(url)
+	resp, err := http.Head(uri)
 	if err != nil {
 		return 0, false, err
 	}
@@ -35,7 +35,7 @@ func ContentLength(url string) (int64, bool, error) {
 		supported = true
 	}
 
-	lenth, _ := strconv.ParseInt(resp.Header.Get(keyContentLength), 10, 64)
+	l, _ := strconv.ParseUint(resp.Header.Get(keyContentLength), 10, 64)
 
-	return lenth, supported, nil
+	return l, supported, nil
 }

@@ -7,12 +7,12 @@ import (
 	"github.com/northbright/httputil"
 )
 
-func ExampleContentLength() {
-	url := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
+func ExampleLen() {
+	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	l, supported, err := httputil.ContentLength(url)
+	l, supported, err := httputil.Len(uri)
 	if err != nil {
-		log.Printf("ContentLength() error: %v", err)
+		log.Printf("Len() error: %v", err)
 		return
 	}
 
