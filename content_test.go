@@ -7,51 +7,61 @@ import (
 	"github.com/northbright/httputil"
 )
 
-func ExampleLen() {
+func ExampleSize() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	l, supported, err := httputil.Len(uri)
+	isSizeUnknown, size, isRangeSupported, err := httputil.Size(uri)
 	if err != nil {
-		log.Printf("Len() error: %v", err)
+		log.Printf("Size() error: %v", err)
 		return
 	}
 
-	fmt.Printf("%v, %v", l, supported)
+	fmt.Printf("is size unknown: %v\nsize: %d\nis range supported: %v",
+		isSizeUnknown,
+		size,
+		isRangeSupported)
 
 	// Output:
-	// 145565374, true
+	// is size unknown: false
+	// size: 145565374
+	// is range supported: true
 }
 
 func ExampleGetResp() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	resp, l, supported, err := httputil.GetResp(uri)
+	resp, isSizeUnknown, size, isRangeSupported, err := httputil.GetResp(uri)
 	if err != nil {
 		log.Printf("GetResp() error: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("%v, %v", l, supported)
+	fmt.Printf("is size unknown: %v\nsize: %d\nis range supported: %v",
+		isSizeUnknown,
+		size,
+		isRangeSupported)
 
 	// Output:
-	// 145565374, true
+	// is size unknown: false
+	// size: 145565374
+	// is range supported: true
 }
 
-func ExampleLenOfRange() {
+func ExampleSizeOfRange() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	l, err := httputil.LenOfRange(uri, 0, 99999999, false)
+	l, err := httputil.SizeOfRange(uri, 0, 99999999, false)
 	if err != nil {
-		log.Printf("httputil.LenOfRange() error: %v", err)
+		log.Printf("httputil.SizeOfRange() error: %v", err)
 		return
 	}
 	fmt.Printf("size of range: 0 - 99999999: %d\n", l)
 
 	// Get len of range using "bytes=start-" syntax.
-	l, err = httputil.LenOfRange(uri, 100000000, 0, true)
+	l, err = httputil.SizeOfRange(uri, 100000000, 0, true)
 	if err != nil {
-		log.Printf("httputil.LenOfRange() error: %v", err)
+		log.Printf("httputil.SizeOfRange() error: %v", err)
 		return
 	}
 
@@ -62,13 +72,13 @@ func ExampleLenOfRange() {
 	// size of range: 10000000-: 45565374
 }
 
-func ExampleLenOfRangeStart() {
+func ExampleSizeOfRangeStart() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
 	// Get len of range using "bytes=start-" syntax.
-	l, err := httputil.LenOfRangeStart(uri, 100000000)
+	l, err := httputil.SizeOfRangeStart(uri, 100000000)
 	if err != nil {
-		log.Printf("httputil.LenOfRangeStart() error: %v", err)
+		log.Printf("httputil.SizeOfRangeStart() error: %v", err)
 		return
 	}
 
@@ -110,7 +120,7 @@ func ExampleGetRespOfRangeStart() {
 
 	resp, l, err := httputil.GetRespOfRangeStart(uri, 100000000)
 	if err != nil {
-		log.Printf("httputil.LenOfRange() error: %v", err)
+		log.Printf("httputil.SizeOfRange() error: %v", err)
 		return
 	}
 	defer resp.Body.Close()
