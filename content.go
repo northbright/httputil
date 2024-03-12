@@ -26,7 +26,7 @@ var (
 
 // getResp returns:
 // 1. the response.
-// 2. if the size of content is unknown.
+// 2. if the size of content is known or not.
 // 3. size of the content.
 // 4. if range header is supported by the server.
 func getResp(uri string, method string) (*http.Response, bool, uint64, bool, error) {
@@ -52,12 +52,12 @@ func getResp(uri string, method string) (*http.Response, bool, uint64, bool, err
 		return nil, true, 0, false, ErrNot200
 	}
 
-	// Check if size of content is unknown or not.
-	isSizeUnknown := true
+	// Check if size of content is Known or not.
+	isSizeKnown := false
 	size := uint64(0)
 	str := resp.Header.Get("Content-Length")
 	if str != "" {
-		isSizeUnknown = false
+		isSizeKnown = true
 		size, _ = strconv.ParseUint(str, 10, 64)
 	}
 
@@ -67,29 +67,29 @@ func getResp(uri string, method string) (*http.Response, bool, uint64, bool, err
 		supported = true
 	}
 
-	return resp, isSizeUnknown, size, supported, nil
+	return resp, isSizeKnown, size, supported, nil
 }
 
 // Size returns:
-// 1. if the size of content is unknown.
+// 1. if the size of content is known or not.
 // 2. size of the content.
 // 3. if range header is supported by the server.
-func Size(uri string) (isSizeUnknown bool, size uint64, isRangeSupported bool, err error) {
-	resp, isSizeUnknown, size, isRangeSupported, err := getResp(uri, "HEAD")
+func Size(uri string) (isSizeKnown bool, size uint64, isRangeSupported bool, err error) {
+	resp, isSizeKnown, size, isRangeSupported, err := getResp(uri, "HEAD")
 	if err != nil {
 		return true, 0, false, err
 	}
 	defer resp.Body.Close()
 
-	return isSizeUnknown, size, isRangeSupported, nil
+	return isSizeKnown, size, isRangeSupported, nil
 }
 
 // GetResp returns:
 // 1. the response.
-// 2. if the size of content is unknown.
+// 2. if the size of content is known or not.
 // 3. size of the content.
 // 4. if range header is supported by the server.
-func GetResp(uri string) (resp *http.Response, isSizeUnknown bool, size uint64, isRangeSupported bool, err error) {
+func GetResp(uri string) (resp *http.Response, isSizeKnown bool, size uint64, isRangeSupported bool, err error) {
 	return getResp(uri, "GET")
 }
 

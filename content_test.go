@@ -10,19 +10,19 @@ import (
 func ExampleSize() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	isSizeUnknown, size, isRangeSupported, err := httputil.Size(uri)
+	isSizeKnown, size, isRangeSupported, err := httputil.Size(uri)
 	if err != nil {
 		log.Printf("Size() error: %v", err)
 		return
 	}
 
-	fmt.Printf("is size unknown: %v\nsize: %d\nis range supported: %v",
-		isSizeUnknown,
+	fmt.Printf("is size known: %v\nsize: %d\nis range supported: %v",
+		isSizeKnown,
 		size,
 		isRangeSupported)
 
 	// Output:
-	// is size unknown: false
+	// is size known: true
 	// size: 145565374
 	// is range supported: true
 }
@@ -30,20 +30,20 @@ func ExampleSize() {
 func ExampleGetResp() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	resp, isSizeUnknown, size, isRangeSupported, err := httputil.GetResp(uri)
+	resp, isSizeKnown, size, isRangeSupported, err := httputil.GetResp(uri)
 	if err != nil {
 		log.Printf("GetResp() error: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("is size unknown: %v\nsize: %d\nis range supported: %v",
-		isSizeUnknown,
+	fmt.Printf("is size known: %v\nsize: %d\nis range supported: %v",
+		isSizeKnown,
 		size,
 		isRangeSupported)
 
 	// Output:
-	// is size unknown: false
+	// is size known: true
 	// size: 145565374
 	// is range supported: true
 }
