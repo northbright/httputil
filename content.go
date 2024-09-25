@@ -29,7 +29,7 @@ var (
 // 2. if the size of content is known or not.
 // 3. size of the content.
 // 4. if range header is supported by the server.
-func getResp(uri string, method string) (*http.Response, bool, uint64, bool, error) {
+func getResp(uri string, method string) (*http.Response, bool, int64, bool, error) {
 	if method != "HEAD" && method != "GET" {
 		return nil, true, 0, false, ErrMethodNotHeadOrGet
 	}
@@ -54,11 +54,11 @@ func getResp(uri string, method string) (*http.Response, bool, uint64, bool, err
 
 	// Check if size of content is Known or not.
 	sizeIsKnown := false
-	size := uint64(0)
+	size := int64(0)
 	str := resp.Header.Get("Content-Length")
 	if str != "" {
 		sizeIsKnown = true
-		size, _ = strconv.ParseUint(str, 10, 64)
+		size, _ = strconv.ParseInt(str, 10, 64)
 	}
 
 	// Check if range header is supported.
@@ -74,7 +74,7 @@ func getResp(uri string, method string) (*http.Response, bool, uint64, bool, err
 // 1. if the size of content is known or not.
 // 2. size of the content.
 // 3. if range header is supported by the server.
-func Size(uri string) (sizeIsKnown bool, size uint64, rangeIsSupported bool, err error) {
+func Size(uri string) (sizeIsKnown bool, size int64, rangeIsSupported bool, err error) {
 	resp, sizeIsKnown, size, rangeIsSupported, err := getResp(uri, "HEAD")
 	if err != nil {
 		return true, 0, false, err
@@ -89,13 +89,13 @@ func Size(uri string) (sizeIsKnown bool, size uint64, rangeIsSupported bool, err
 // 2. if the size of content is known or not.
 // 3. size of the content.
 // 4. if range header is supported by the server.
-func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size uint64, rangeIsSupported bool, err error) {
+func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size int64, rangeIsSupported bool, err error) {
 	return getResp(uri, "GET")
 }
 
 // SetRangeHeader adds the range key-value pair to the header.
 // If endIsIgnored is true, the syntax is "bytes=start-".
-func SetRangeHeader(header http.Header, start, end uint64, endIsIgnored bool) {
+func SetRangeHeader(header http.Header, start, end int64, endIsIgnored bool) {
 	bytesRange := ""
 	if !endIsIgnored {
 		bytesRange = fmt.Sprintf("bytes=%d-%d", start, end)
@@ -107,7 +107,7 @@ func SetRangeHeader(header http.Header, start, end uint64, endIsIgnored bool) {
 
 // getRespOfRange returns the response and the size of the partial content.
 // If endIsIgnored is true, the range header uses "bytes=start-" syntax.
-func getRespOfRange(uri string, method string, start, end uint64, endIsIgnored bool) (*http.Response, uint64, error) {
+func getRespOfRange(uri string, method string, start, end int64, endIsIgnored bool) (*http.Response, int64, error) {
 	if method != "HEAD" && method != "GET" {
 		return nil, 0, ErrMethodNotHeadOrGet
 	}
@@ -143,14 +143,14 @@ func getRespOfRange(uri string, method string, start, end uint64, endIsIgnored b
 
 	// Get the remote file size.
 	str := resp.Header.Get("Content-Length")
-	size, _ := strconv.ParseUint(str, 10, 64)
+	size, _ := strconv.ParseInt(str, 10, 64)
 
 	return resp, size, err
 }
 
 // SizeOfRange returns the size of the partial content.
 // If endIsIgnored is true, the range header uses "bytes=start-" syntax.
-func SizeOfRange(uri string, start, end uint64, endIsIgnored bool) (uint64, error) {
+func SizeOfRange(uri string, start, end int64, endIsIgnored bool) (int64, error) {
 	resp, l, err := getRespOfRange(uri, "HEAD", start, end, endIsIgnored)
 	if err != nil {
 		return 0, err
@@ -162,17 +162,17 @@ func SizeOfRange(uri string, start, end uint64, endIsIgnored bool) (uint64, erro
 
 // SizeOfRangeStart returns the size of the partial content.
 // The range header uses "bytes=start-" syntax.
-func SizeOfRangeStart(uri string, start uint64) (uint64, error) {
+func SizeOfRangeStart(uri string, start int64) (int64, error) {
 	return SizeOfRange(uri, start, 0, true)
 }
 
 // GetRespOfRange returns the response and the size of the partial content.
 // If endIsIgnored is true, the range header uses "bytes=start-" syntax.
-func GetRespOfRange(uri string, start, end uint64, endIsIgnored bool) (*http.Response, uint64, error) {
+func GetRespOfRange(uri string, start, end int64, endIsIgnored bool) (*http.Response, int64, error) {
 	return getRespOfRange(uri, "GET", start, end, endIsIgnored)
 }
 
 // GetRespOfRangeStart returns the response and the size of the partial content.
-func GetRespOfRangeStart(uri string, start uint64) (*http.Response, uint64, error) {
+func GetRespOfRangeStart(uri string, start int64) (*http.Response, int64, error) {
 	return GetRespOfRange(uri, start, 0, true)
 }
