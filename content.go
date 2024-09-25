@@ -94,10 +94,10 @@ func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size uint64, ra
 }
 
 // SetRangeHeader adds the range key-value pair to the header.
-// If isEndIgnored is true, the syntax is "bytes=start-".
-func SetRangeHeader(header http.Header, start, end uint64, isEndIgnored bool) {
+// If endIsIgnored is true, the syntax is "bytes=start-".
+func SetRangeHeader(header http.Header, start, end uint64, endIsIgnored bool) {
 	bytesRange := ""
-	if !isEndIgnored {
+	if !endIsIgnored {
 		bytesRange = fmt.Sprintf("bytes=%d-%d", start, end)
 	} else {
 		bytesRange = fmt.Sprintf("bytes=%d-", start)
@@ -106,8 +106,8 @@ func SetRangeHeader(header http.Header, start, end uint64, isEndIgnored bool) {
 }
 
 // getRespOfRange returns the response and the size of the partial content.
-// If isEndIgnored is true, the range header uses "bytes=start-" syntax.
-func getRespOfRange(uri string, method string, start, end uint64, isEndIgnored bool) (*http.Response, uint64, error) {
+// If endIsIgnored is true, the range header uses "bytes=start-" syntax.
+func getRespOfRange(uri string, method string, start, end uint64, endIsIgnored bool) (*http.Response, uint64, error) {
 	if method != "HEAD" && method != "GET" {
 		return nil, 0, ErrMethodNotHeadOrGet
 	}
@@ -120,7 +120,7 @@ func getRespOfRange(uri string, method string, start, end uint64, isEndIgnored b
 	}
 
 	// Set the range header to resume the downloading if need.
-	SetRangeHeader(req.Header, start, end, isEndIgnored)
+	SetRangeHeader(req.Header, start, end, endIsIgnored)
 
 	// Do HTTP request.
 	resp, err := client.Do(req)
@@ -149,9 +149,9 @@ func getRespOfRange(uri string, method string, start, end uint64, isEndIgnored b
 }
 
 // SizeOfRange returns the size of the partial content.
-// If isEndIgnored is true, the range header uses "bytes=start-" syntax.
-func SizeOfRange(uri string, start, end uint64, isEndIgnored bool) (uint64, error) {
-	resp, l, err := getRespOfRange(uri, "HEAD", start, end, isEndIgnored)
+// If endIsIgnored is true, the range header uses "bytes=start-" syntax.
+func SizeOfRange(uri string, start, end uint64, endIsIgnored bool) (uint64, error) {
+	resp, l, err := getRespOfRange(uri, "HEAD", start, end, endIsIgnored)
 	if err != nil {
 		return 0, err
 	}
@@ -167,13 +167,12 @@ func SizeOfRangeStart(uri string, start uint64) (uint64, error) {
 }
 
 // GetRespOfRange returns the response and the size of the partial content.
-// If isEndIgnored is true, the range header uses "bytes=start-" syntax.
-func GetRespOfRange(uri string, start, end uint64, isEndIgnored bool) (*http.Response, uint64, error) {
-	return getRespOfRange(uri, "GET", start, end, isEndIgnored)
+// If endIsIgnored is true, the range header uses "bytes=start-" syntax.
+func GetRespOfRange(uri string, start, end uint64, endIsIgnored bool) (*http.Response, uint64, error) {
+	return getRespOfRange(uri, "GET", start, end, endIsIgnored)
 }
 
 // GetRespOfRangeStart returns the response and the size of the partial content.
-// If isEndIgnored is true, the range header uses "bytes=start-" syntax.
 func GetRespOfRangeStart(uri string, start uint64) (*http.Response, uint64, error) {
 	return GetRespOfRange(uri, start, 0, true)
 }
