@@ -74,14 +74,14 @@ func getResp(uri string, method string) (*http.Response, bool, uint64, bool, err
 // 1. if the size of content is known or not.
 // 2. size of the content.
 // 3. if range header is supported by the server.
-func Size(uri string) (sizeIsKnown bool, size uint64, isRangeSupported bool, err error) {
-	resp, sizeIsKnown, size, isRangeSupported, err := getResp(uri, "HEAD")
+func Size(uri string) (sizeIsKnown bool, size uint64, rangeIsSupported bool, err error) {
+	resp, sizeIsKnown, size, rangeIsSupported, err := getResp(uri, "HEAD")
 	if err != nil {
 		return true, 0, false, err
 	}
 	defer resp.Body.Close()
 
-	return sizeIsKnown, size, isRangeSupported, nil
+	return sizeIsKnown, size, rangeIsSupported, nil
 }
 
 // GetResp returns:
@@ -89,7 +89,7 @@ func Size(uri string) (sizeIsKnown bool, size uint64, isRangeSupported bool, err
 // 2. if the size of content is known or not.
 // 3. size of the content.
 // 4. if range header is supported by the server.
-func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size uint64, isRangeSupported bool, err error) {
+func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size uint64, rangeIsSupported bool, err error) {
 	return getResp(uri, "GET")
 }
 
