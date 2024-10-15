@@ -24,72 +24,63 @@ var (
 	ErrMethodNotHeadOrGet = errors.New("request method is not HEAD or GET")
 )
 
-// getResp returns:
-// 1. the response.
-// 2. if the size of content is known or not.
-// 3. size of the content.
-// 4. if range header is supported by the server.
-func getResp(uri string, method string) (*http.Response, bool, int64, bool, error) {
+// getResp returns the HTTP response, the size of the content and if range header is supported by the server.
+// -1 size indicates that the size is unknown.
+func getResp(uri string, method string) (resp *http.Response, size int64, rangeIsSupported bool, err error) {
 	if method != "HEAD" && method != "GET" {
-		return nil, true, 0, false, ErrMethodNotHeadOrGet
+		return nil, -1, false, ErrMethodNotHeadOrGet
 	}
 
 	// Create an HTTP client.
 	client := http.Client{}
 	req, err := http.NewRequest(method, uri, nil)
 	if err != nil {
-		return nil, true, 0, false, err
+		return nil, -1, false, err
 	}
 
 	// Do HTTP request.
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, true, 0, false, err
+	if resp, err = client.Do(req); err != nil {
+		return nil, -1, false, err
 	}
 
 	// Check if status code is 200.
 	if resp.StatusCode != 200 {
-		return nil, true, 0, false, ErrNot200
+		return nil, -1, false, ErrNot200
 	}
 
-	// Check if size of content is Known or not.
-	sizeIsKnown := false
-	size := int64(0)
+	size = int64(-1)
 	str := resp.Header.Get("Content-Length")
 	if str != "" {
-		sizeIsKnown = true
-		size, _ = strconv.ParseInt(str, 10, 64)
+		if size, err = strconv.ParseInt(str, 10, 64); err != nil {
+			resp.Body.Close()
+			return nil, -1, false, err
+		}
 	}
 
 	// Check if range header is supported.
-	supported := false
+	rangeIsSupported = false
 	if resp.Header.Get("Accept-Ranges") == "bytes" {
-		supported = true
+		rangeIsSupported = true
 	}
 
-	return resp, sizeIsKnown, size, supported, nil
+	return resp, size, rangeIsSupported, nil
 }
 
-// Size returns:
-// 1. if the size of content is known or not.
-// 2. size of the content.
-// 3. if range header is supported by the server.
-func Size(uri string) (sizeIsKnown bool, size int64, rangeIsSupported bool, err error) {
-	resp, sizeIsKnown, size, rangeIsSupported, err := getResp(uri, "HEAD")
+// Size returns the size of the content and if range header is supported by the server.
+// -1 size indicates the size is unknown.
+func Size(uri string) (size int64, rangeIsSupported bool, err error) {
+	resp, size, rangeIsSupported, err := getResp(uri, "HEAD")
 	if err != nil {
-		return true, 0, false, err
+		return -1, false, err
 	}
 	defer resp.Body.Close()
 
-	return sizeIsKnown, size, rangeIsSupported, nil
+	return size, rangeIsSupported, nil
 }
 
-// GetResp returns:
-// 1. the response.
-// 2. if the size of content is known or not.
-// 3. size of the content.
-// 4. if range header is supported by the server.
-func GetResp(uri string) (resp *http.Response, sizeIsKnown bool, size int64, rangeIsSupported bool, err error) {
+// GetResp returns the HTTP response, the size of the content and if range header is supported by the server.
+// -1 size indicates that the size is unknown.
+func GetResp(uri string) (resp *http.Response, size int64, rangeIsSupported bool, err error) {
 	return getResp(uri, "GET")
 }
 

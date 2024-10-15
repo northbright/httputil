@@ -10,19 +10,17 @@ import (
 func ExampleSize() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	sizeIsKnown, size, rangeIsSupported, err := httputil.Size(uri)
+	size, rangeIsSupported, err := httputil.Size(uri)
 	if err != nil {
 		log.Printf("Size() error: %v", err)
 		return
 	}
 
-	fmt.Printf("size is known: %v\nsize: %d\nrange is supported: %v",
-		sizeIsKnown,
+	fmt.Printf("size: %d\nrange is supported: %v",
 		size,
 		rangeIsSupported)
 
 	// Output:
-	// size is known: true
 	// size: 145565374
 	// range is supported: true
 }
@@ -30,20 +28,18 @@ func ExampleSize() {
 func ExampleGetResp() {
 	uri := "https://golang.google.cn/dl/go1.19.3.darwin-arm64.pkg"
 
-	resp, sizeIsKnown, size, rangeIsSupported, err := httputil.GetResp(uri)
+	resp, size, rangeIsSupported, err := httputil.GetResp(uri)
 	if err != nil {
 		log.Printf("GetResp() error: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("size is known: %v\nsize: %d\nrange is supported: %v",
-		sizeIsKnown,
+	fmt.Printf("size: %d\nrange is supported: %v",
 		size,
 		rangeIsSupported)
 
 	// Output:
-	// size is known: true
 	// size: 145565374
 	// range is supported: true
 }
